@@ -42,6 +42,23 @@ namespace UploadFileWeb.API.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [HttpGet("GetTransactionsByCurrency")]
+        public async Task<List<TransactionDto>> GetTransactionsByCurrencyAsync(string currency) {
 
+                return await service.GetTransactionsByCurrencyAsync(currency);
+        }
+        [HttpGet("GetTransactionsByDate")]
+        public async Task<List<TransactionDto>> GetTransactionsByDateAsync(DateTime beginDate, DateTime endDate)
+        {
+            return await service.GetTransactionsByDateAsync(beginDate, endDate);
+        }
+        [HttpGet("GetTransactionsByStatus")]
+        public async Task<List<TransactionDto>> GetTransactionsByStatusAsync(string cstatus)
+        {
+            string status = TransactionCSVStatus.GetMemberValue(cstatus);
+            if(string.IsNullOrEmpty(status))
+                status = TransactionXMLStatus.GetMemberValue(cstatus);
+            return await service.GetTransactionsByStatusAsync(status);
+        }
     }
 }

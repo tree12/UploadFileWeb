@@ -22,17 +22,29 @@ namespace UploadFileWeb.API.Services
 
         public async Task<List<TransactionDto>> GetTransactionsByCurrencyAsync(string currency)
         {
-            throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(currency))
+                currency = currency.ToUpper();
+            var entities = await unitOfWork.transactionRepository.Find(x => x.CurrencyCode == currency, x => x.OrderByDescending(o => o.TransactionDate), null, false);
+
+            return MapToTransactionDto(entities);
         }
 
         public async Task<List<TransactionDto>> GetTransactionsByDateAsync(DateTime beginDate, DateTime endDate)
         {
-            throw new NotImplementedException();
+
+            DateTime endDateQuery = endDate.AddDays(1);
+            var entities = await unitOfWork.transactionRepository.Find(x => x.TransactionDate >= beginDate && x.TransactionDate < endDateQuery, x => x.OrderByDescending(o => o.TransactionDate), null, false);
+   
+            return MapToTransactionDto(entities);
         }
 
         public async Task<List<TransactionDto>> GetTransactionsByStatusAsync(string status)
         {
-            throw new NotImplementedException();
+           
+            char queryStatus = Convert.ToChar(status);
+            var entities = await unitOfWork.transactionRepository.Find(x => x.Status == queryStatus, x => x.OrderByDescending(o => o.TransactionDate), null, false);
+
+            return MapToTransactionDto(entities);
         }
 
         public async Task<ReturnResult> UploadFileCSVAsync(IFormFile file)
@@ -67,7 +79,7 @@ namespace UploadFileWeb.API.Services
                                 }
                                 else
                                 {
-                                    char status = char.Parse(TransactionCSVStatus.GetMemberName(fields[4]));
+                                    char status = char.Parse(TransactionCSVStatus.GetMemberValue(fields[4]));
 
                                     var existEntity = await unitOfWork.transactionRepository.GetById(fields[0]);
                                     if (existEntity != null)
@@ -76,6 +88,7 @@ namespace UploadFileWeb.API.Services
                                         existEntity.CurrencyCode = fields[2];
                                         existEntity.TransactionDate = DateTime.ParseExact(fields[3], "d/M/yyyy hh:mm:ss", CultureInfo.InvariantCulture);
                                         existEntity.Status = status;
+                                        existEntity.FileType = "csv";
                                         unitOfWork.transactionRepository.Update(existEntity);
                                     }
                                     else
@@ -86,7 +99,8 @@ namespace UploadFileWeb.API.Services
                                             Amount = Convert.ToDecimal(fields[1]),
                                             CurrencyCode = fields[2],
                                             TransactionDate = DateTime.ParseExact(fields[3], "d/M/yyyy hh:mm:ss", CultureInfo.InvariantCulture),
-                                            Status = status
+                                            Status = status,
+                                            FileType = "csv"
                                         };
                                         await unitOfWork.transactionRepository.Add(entity);
                                     }
@@ -135,7 +149,7 @@ namespace UploadFileWeb.API.Services
                         
                         Transactions trans = ser.Deserialize<Transactions>(xmlString);
                         foreach (var item in trans.transactions) {
-                            char status = char.Parse(TransactionXMLStatus.GetMemberName(item.Status));
+                            char status = char.Parse(TransactionXMLStatus.GetMemberValue(item.Status));
                             var existEntity = await unitOfWork.transactionRepository.GetById(item.id);
                             if (existEntity != null)
                             {
@@ -143,6 +157,7 @@ namespace UploadFileWeb.API.Services
                                 existEntity.CurrencyCode = item.PaymentDetails.CurrencyCode;
                                 existEntity.TransactionDate = DateTime.ParseExact(item.TransactionDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
                                 existEntity.Status = status;
+                                existEntity.FileType = "xml";
                                 unitOfWork.transactionRepository.Update(existEntity);
                             }
                             else
@@ -153,7 +168,8 @@ namespace UploadFileWeb.API.Services
                                     Amount = Convert.ToDecimal(item.PaymentDetails.Amount),
                                     CurrencyCode = item.PaymentDetails.CurrencyCode,
                                     TransactionDate = DateTime.ParseExact(item.TransactionDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture),
-                                    Status = status
+                                    Status = status,
+                                    FileType = "xml"
                                 };
                                 await unitOfWork.transactionRepository.Add(entity);
                             }
@@ -173,5 +189,26 @@ namespace UploadFileWeb.API.Services
             });
             return returnResult;
         }
+
+        private List<TransactionDto> MapToTransactionDto(IEnumerable<Transaction> entities) {
+            List<TransactionDto> transactionDtos = new List<TransactionDto>();
+            if (entities != null && entities.Any())
+            {
+                foreach (var item in entities)
+                {
+                    transactionDtos.Add(new TransactionDto()
+                    {
+                        TransactionId = item.TransactionId,
+                        CurrencyCode = item.CurrencyCode,
+                        Amount = item.Amount,
+                        TransactionDate = item.TransactionDate,
+                        Status = item.Status,
+                        CStatus = item.FileType == "csv" ? TransactionCSVStatus.GetMemberName(item.Status.ToString()) : TransactionXMLStatus.GetMemberName(item.Status.ToString())
+                    });
+                }
+            }
+            return transactionDtos;
+        }
+
     }
 }

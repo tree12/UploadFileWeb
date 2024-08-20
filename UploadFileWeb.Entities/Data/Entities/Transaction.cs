@@ -16,10 +16,13 @@ namespace UploadFileWeb.Entities.Data.Entities
         public string CurrencyCode { get; set; }
         public DateTime TransactionDate { get; set; }
         public char Status { get; set; }
+        public string FileType { get; set; }
         public override void Configure(EntityTypeBuilder<Transaction> builder) {
             base.Configure(builder);
             builder.Property(e => e.TransactionId)
             .HasMaxLength(50);
+            builder.Property(e => e.FileType)
+           .HasMaxLength(3);
         }
     }
 }

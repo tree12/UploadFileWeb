@@ -15,15 +15,13 @@ namespace UploadFileWeb.Entities.Data.Entities
         [Key]
         public int Id { get; set; }
 
-        public string TransactionId { get; set; }
         public string FileType { get; set; }
         public string FilePath { get; set; }
 
         public bool Success { get; set; }
         public string? ErrorMessage { get; set; }
 
-        [ForeignKey("TransactionId")]
-        public Transaction Transaction { get; set; }
+ 
         public override void Configure(EntityTypeBuilder<FileLog> builder)
         {
             base.Configure(builder);
