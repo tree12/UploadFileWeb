@@ -12,7 +12,8 @@ namespace UploadFileWeb.Shared.Interfaces
 {
     public interface ITransactionService : IService
     {
-        public Task<ReturnResult> UploadFileAsync(IFormFile? File, FileType fileType);
+        public Task<ReturnResult> UploadFileCSVAsync(IFormFile file);
+        public Task<ReturnResult> UploadFileXMLAsync(IFormFile file);
         public Task<List<TransactionDto>> GetTransactionsByCurrencyAsync(string currency);
         public Task<List<TransactionDto>> GetTransactionsByDateAsync(DateTime beginDate, DateTime endDate);
         public Task<List<TransactionDto>> GetTransactionsByStatusAsync(string status);

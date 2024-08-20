@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace UploadFileWeb.Shared.Constants
 {
-    public enum FileType
-    {
-        CSV = 1,
-        XML = 2
+    //public enum FileType
+    //{
+    //    CSV = 1,
+    //    XML = 2
+    //}
+    public static class FileType {
+        public static string[] permittedExtensions = { ".CSV", ".XML"};
     }
 }
