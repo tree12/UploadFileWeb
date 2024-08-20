@@ -7,6 +7,10 @@ using UploadFileWeb.Entities.Data.Entities;
 using UploadFileWeb.Shared.Constants;
 using UploadFileWeb.Shared.Interfaces;
 using UploadFileWeb.Shared.Models;
+using System.Xml.Serialization;
+using System.Runtime.ConstrainedExecution;
+using UploadFileWeb.API.Models;
+using Transaction = UploadFileWeb.Entities.Data.Entities.Transaction;
 
 namespace UploadFileWeb.API.Services
 {
@@ -90,7 +94,7 @@ namespace UploadFileWeb.API.Services
                                     
                                 }
                             }
-
+                            reader.Close();
                         }
                         transaction.Commit();
                         returnResult.Success = true;
@@ -110,7 +114,64 @@ namespace UploadFileWeb.API.Services
 
         public async Task<ReturnResult> UploadFileXMLAsync(IFormFile file)
         {
-            throw new NotImplementedException();
+            Serializer ser = new Serializer();
+
+            ReturnResult returnResult = new ReturnResult();
+            var executionStrategy = unitOfWork.context.Database.CreateExecutionStrategy();
+            await executionStrategy.Execute(async () =>
+            {
+                using (var transaction = unitOfWork.context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var result = new StringBuilder();
+                        using (var reader = new StreamReader(file.OpenReadStream()))
+                        {
+                            while (reader.Peek() >= 0)
+                                result.AppendLine(await reader.ReadLineAsync());
+                            reader.Close();
+                        }
+                        string xmlString = result.ToString();
+                        
+                        Transactions trans = ser.Deserialize<Transactions>(xmlString);
+                        foreach (var item in trans.transactions) {
+                            char status = char.Parse(TransactionXMLStatus.GetMemberName(item.Status));
+                            var existEntity = await unitOfWork.transactionRepository.GetById(item.id);
+                            if (existEntity != null)
+                            {
+                                existEntity.Amount = Convert.ToDecimal(item.PaymentDetails.Amount);
+                                existEntity.CurrencyCode = item.PaymentDetails.CurrencyCode;
+                                existEntity.TransactionDate = DateTime.ParseExact(item.TransactionDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
+                                existEntity.Status = status;
+                                unitOfWork.transactionRepository.Update(existEntity);
+                            }
+                            else
+                            {
+                                var entity = new Transaction()
+                                {
+                                    TransactionId = item.id,
+                                    Amount = Convert.ToDecimal(item.PaymentDetails.Amount),
+                                    CurrencyCode = item.PaymentDetails.CurrencyCode,
+                                    TransactionDate = DateTime.ParseExact(item.TransactionDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture),
+                                    Status = status
+                                };
+                                await unitOfWork.transactionRepository.Add(entity);
+                            }
+                            unitOfWork.Complete();
+                        }
+
+                        transaction.Commit();
+                        returnResult.Success = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        returnResult.Success = false;
+                        returnResult.Message = ex.Message;
+                    }
+                }
+            });
+            return returnResult;
         }
     }
 }
