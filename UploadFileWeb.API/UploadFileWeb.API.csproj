@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UploadFileWeb.Repository\UploadFileWeb.Repository.csproj" />
+    <ProjectReference Include="..\UploadFileWeb.Shared\UploadFileWeb.Shared.csproj" />
   </ItemGroup>
 
 </Project>
