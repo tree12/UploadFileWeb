@@ -1,0 +1,15 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/UploadFileWeb/.vs
+/UploadFileWeb/bin/Debug/net8.0
+/UploadFileWeb/obj
+/UploadFileWeb.API/bin/Debug/net8.0
+/UploadFileWeb.API/obj
+/UploadFileWeb.Entities/bin/Debug/net8.0
+/UploadFileWeb.Entities/obj
+/UploadFileWeb.Repository/bin/Debug/net8.0
+/UploadFileWeb.Repository/obj
+/UploadFileWeb.Shared/obj
+/UploadFileWeb.Shared/bin/Debug/net8.0
