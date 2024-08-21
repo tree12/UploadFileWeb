@@ -13,3 +13,7 @@
 /UploadFileWeb.Repository/obj
 /UploadFileWeb.Shared/obj
 /UploadFileWeb.Shared/bin/Debug/net8.0
+/UploadFileWeb.Blazor/bin/Debug/net8.0
+/UploadFileWeb.Blazor/obj
+/UploadFileWeb
+/.vs
