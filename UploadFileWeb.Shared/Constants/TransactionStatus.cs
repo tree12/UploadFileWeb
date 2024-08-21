@@ -22,17 +22,26 @@ namespace UploadFileWeb.Shared.Constants
         }
         public static string GetMemberName(string value)
         {
-            var properties = typeof(TransactionXMLStatus).GetProperties();
-            string name = string.Empty;
-            foreach (var item in properties)
-            {
-                if (value == item?.GetValue(null)?.ToString())
-                {
-                    name = item.Name;
-                    break;
-                }
-            }
-            return name;
+            if (value == "A")
+                return nameof(TransactionXMLStatus.Approved);
+            if (value == "R")
+                return nameof(TransactionXMLStatus.Rejected);
+            if (value == "D")
+                return nameof(TransactionXMLStatus.Done);
+            else
+                return string.Empty;
+            //TODO:: This code not work
+            //var properties = typeof(TransactionXMLStatus).GetProperties();
+            //string name = string.Empty;
+            //foreach (var item in properties)
+            //{
+            //    if (value == item?.GetValue(null)?.ToString())
+            //    {
+            //        name = item.Name;
+            //        break;
+            //    }
+            //}
+            //return name;
 
         }
     }
@@ -51,18 +60,28 @@ namespace UploadFileWeb.Shared.Constants
         }
         public static string GetMemberName(string value)
         {
-            var properties = typeof(TransactionCSVStatus).GetProperties();
-            string name = string.Empty;
-            foreach (var item in properties)
-            {
-                if (value == item?.GetValue(null)?.ToString()) 
-                {
-                    name = item.Name;
-                    break;
-                }
-                    
-            }
-            return name;
+            if (value == "A")
+                return nameof(TransactionCSVStatus.Approved);
+            if (value == "R")
+                return nameof(TransactionCSVStatus.Failed);
+            if (value == "D")
+                return nameof(TransactionCSVStatus.Finished);
+            else
+                return string.Empty;
+            //TODO:: This code not work
+
+            //var properties = typeof(TransactionCSVStatus).GetProperties(BindingFlags.Public | BindingFlags.Static |  BindingFlags.Instance |BindingFlags.FlattenHierarchy);
+            //string name = string.Empty;
+            //foreach (var item in properties)
+            //{
+            //    if (value == item?.GetValue(null)?.ToString()) 
+            //    {
+            //        name = item.Name;
+            //        break;
+            //    }
+
+            //}
+            //return name;
 
         }
     }

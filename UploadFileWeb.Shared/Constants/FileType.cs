@@ -12,6 +12,6 @@ namespace UploadFileWeb.Shared.Constants
     //    XML = 2
     //}
     public static class FileType {
-        public static string[] permittedExtensions = { ".CSV", ".XML"};
+        public static string[] permittedContentTypes = { "text/csv", "text/xml" };
     }
 }

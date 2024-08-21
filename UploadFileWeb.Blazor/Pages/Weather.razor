@@ -1,0 +1,99 @@
+﻿@page "/weather"
+@inject HttpClient Http
+@using UploadFileWeb.Blazor.Models
+@using UploadFileWeb.Blazor.Service
+@inject TransactionService transactionService
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+
+<RadzenDropDown @bind-Value=@selectValue Data=@searchTypes TextProperty="Text" ValueProperty="Value" Style="width: 16rem; max-height: 40px;" />
+@if (selectValue == 1)
+
+{
+    <div class="d-flex flex-row">
+        <div><RadzenLabel Text="Currency"></RadzenLabel></div>
+        <div> <RadzenTextBox Style="width: 100%;" @bind-Value="currency" Placeholder="Currency" Name="Currency"></RadzenTextBox></div>
+    </div>
+    
+   
+}
+else if (selectValue == 2)
+{
+    <div class="form-group row">
+
+        <div class="col-sm-5">
+
+            <RadzenLabel Text="Begin" Component="RadzenDatePickerBindValue" Style="margin-right: 8px;margin-bottom: 20px; vertical-align: middle;" />
+            <RadzenDatePicker @bind-Value=@startValue Max="@endValue" DateFormat="dd/MMM/yyyy" Name="DatePickerMin" />
+
+        </div>
+        <div class="col-sm-5">
+
+            <RadzenLabel Text="End" Component="RadzenDatePickerBindValue" Style="margin-right: 8px; vertical-align: middle;" />
+            <RadzenDatePicker @bind-Value=@endValue Min="@startValue" DateFormat="dd/MMM/yyyy" Name="DatePickerMax" />
+
+        </div>
+        <div class="col-sm-1">
+        </div>
+        <div class="col-sm-1">
+        </div>
+    </div>
+}else if(selectValue == 3)
+{
+    <div class="d-flex flex-column">
+        <RadzenDropDown @bind-Value=@statusType Data=@statusTypes TextProperty="Text" ValueProperty="Value" Style="width: 16rem; max-height: 40px;" />
+    </div>
+
+    
+}
+<RadzenButton ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Success" Icon="search" Text="Search" Click="Search"></RadzenButton>
+
+<RadzenDataGrid AllowFiltering="false" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="100" AllowPaging="false" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@transactionDtos" ColumnWidth="300px" >
+    <Columns>
+        <RadzenDataGridColumn Property="@nameof(TransactionDto.TransactionId)" Filterable="false" Title="ID" Frozen="true" Width="80px" TextAlign="TextAlign.Center" />
+
+        <RadzenDataGridColumn  Title="Payment" Frozen="true" Width="160px">
+            <Template Context="data">
+                @data.Amount @data.CurrencyCode
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="@nameof(TransactionDto.CStatus)" Title="Status" Width="160px" />
+
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+
+    int selectValue = 1;
+    DateTime startValue = DateTime.Today.AddDays(-30);
+    DateTime endValue = DateTime.Today;
+    string currency = string.Empty;
+    string statusType = "Approved";
+    public List<SelectValue<int>> searchTypes = new List<SelectValue<int>>() { new SelectValue<int> { Value = 1, Text = "by Currency" }, new SelectValue<int> { Value = 2, Text = "by date range" }, new SelectValue<int> { Value = 3, Text = "by status" } };
+    public List<SelectValue<string>> statusTypes = new List<SelectValue<string>>() { new SelectValue<string> { Value = "Approved", Text = "Approved" }, new SelectValue<string> { Value = "Failed", Text = "Failed or Rejected" }, new SelectValue<string> { Value = "Finished", Text = "Finished" } };
+    List<TransactionDto> transactionDtos = new List<TransactionDto>();
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    async Task Search()
+    {
+        if (selectValue == 1)
+        {
+            transactionDtos = await transactionService.GetTransactionsByCurrencyAsync(currency);
+        }
+        else if (selectValue == 2)
+        {
+            transactionDtos = await transactionService.GetTransactionsByDateAsync(startValue, endValue);
+        }
+        else if (selectValue == 3)
+        {
+            transactionDtos = await transactionService.GetTransactionsByStatusAsync(statusType);
+        }
+    }
+
+}

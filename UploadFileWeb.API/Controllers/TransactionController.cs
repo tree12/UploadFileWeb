@@ -23,10 +23,10 @@ namespace UploadFileWeb.API.Controllers
 
             try
             {
-                string extension = Path.GetExtension(fileDetails.FileName);
-                if (FileType.permittedExtensions.Contains(extension.ToUpper())) {
+                string contentType = fileDetails.ContentType; //Path.GetExtension(fileDetails.FileName);
+                if (FileType.permittedContentTypes.Contains(contentType.ToLower())) {
 
-                    ReturnResult returnResult = extension.ToUpper() == ".CSV"? await service.UploadFileCSVAsync(fileDetails): await service.UploadFileXMLAsync(fileDetails);
+                    ReturnResult returnResult = contentType.ToLower() == "text/csv" ? await service.UploadFileCSVAsync(fileDetails): await service.UploadFileXMLAsync(fileDetails);
                     if(returnResult.Success)
                         return Ok();
                     else
