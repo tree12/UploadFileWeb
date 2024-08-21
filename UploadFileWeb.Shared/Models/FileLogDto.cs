@@ -10,13 +10,13 @@ namespace UploadFileWeb.Shared.Models
     {
         public int Id { get; set; }
 
-        public string TransactionId { get; set; }
+        //public string TransactionId { get; set; }
         public string FileType { get; set; }
         public string FilePath { get; set; }
 
         public bool Success { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public TransactionDto? Transaction { get; set; }
+        //public TransactionDto? Transaction { get; set; }
     }
 }

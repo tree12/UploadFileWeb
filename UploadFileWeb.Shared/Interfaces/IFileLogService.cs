@@ -10,5 +10,6 @@ namespace UploadFileWeb.Shared.Interfaces
     public interface IFileLogService: IService
     {
         public Task<List<FileLogDto>> GetFileLogDtosAsync();
+        public Task SaveFileLogDtoAsynce(FileLogDto fileLog);
     }
 }
